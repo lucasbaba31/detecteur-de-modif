@@ -1,36 +1,72 @@
-import requests
-from bs4 import BeautifulSoup
-import time
+import requests #lib pour la partie web scraping
+from bs4 import BeautifulSoup #lib  pour la  partie web scraping
+import smtplib #lib pour la partie email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-# URL de la page à surveiller
-url = "https://firststepprojectco.wixsite.com/first-step"
+SMTP_SERVER =  "lucaspages1106@gmail.com" #Serveur email
+SMTP_PORT = 587 #Port du serveur
+GMAIL_USERNAME  = #Votre adresse  email
+GMAIL_PASSWORD = #Votre  mot de passe
+receiverAddress = #Adresse mail destinataire
 
-# Fonction pour récupérer le contenu HTML de la page
-def get_page_content(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.content
-    else:
-        print("Erreur lors de la récupération de la page")
-        return None
+emailSubject = "Rapport \U0001F3AE" #Objet du email 
+emailBase = "disponible" #Début du corps du email
+emailContent = "" #Contenu du mail
+emailSignature = "\n Cordialement,\n Le bot" #Signature du mail
+sendEmail = False #Variable de contrôle permettant de savoir s'il faut envoyer l'email
 
-# Fonction pour comparer deux versions du contenu HTML
-def compare_content(old_content, new_content):
-    if old_content == new_content:
-        return True
-    else:
-        return False
+#Liste des URLs des jeux dont je souhaite surveiller le prix
+games_urls = [
+"https://www.nike.com/fr/t/chaussure-air-jordan-3-retro-pour-k3nFnz/CT8532-140",   
+"https://www.nike.com/fr/launch/t/nike-air-max-dn-black-and-dark-smoke-grey2",
+]
 
-# Fonction pour surveiller les modifications sur la page
-def monitor_page(url):
-    old_content = get_page_content(url)
-    while True:
-        new_content = get_page_content(url)
-        if new_content:
-            if not compare_content(old_content, new_content):
-                print("La page a été modifiée !")
-                old_content = new_content
-        time.sleep(60)  # Attendre 60 secondes avant de vérifier à nouveau la page
+#Liste des prix en dessous desquels je souhaite être notifié pour chaque jeu
+prices_thresholds = [210.00, 210.00,]
 
-# Lancement de la surveillance de la page
-monitor_page(url)
+#Listes dans lesquelles on stockera nom et prix des jeux
+games_names = ["Jordan 3"]*len(games_urls)
+games_prices = ["Nike dn"]*len(games_urls)
+
+#Boucle qui parcourt la liste des URLs et qui récupère le nom et le prix de chaque jeu
+for i in range(len(games_urls)):
+    page = requests.get(games_urls[i])
+    parser = BeautifulSoup(page.content,'html.parser')
+    games_names[i] = parser.find(class_="game-title").text
+    games_prices[i] = parser.find_all(class_="total")[1].text
+ 
+#Boucle qui vérifie si le prix récupéré pour chaque jeu est inférieur au prix souhaité
+#Si c'est le cas on rajoute le nom et le prix du jeu à acheter dans le contenu de l'email à envoyer
+for j in range (len(games_names)):
+    if(float(games_prices[j][:-1]) < prices_thresholds[j]):
+        emailContent = emailContent + "\U0001F539" + games_names[j] + " [" + games_prices[j] + "]\n"
+        sendEmail = True
+
+#Envoi de l'email
+if(sendEmail == True):
+    #Le corps du mail est composé de la phrase de base, des noms des jeux à acheter et de la signature
+    emailBody = emailBase + emailContent + emailSignature
+
+    #Creation de  l'email
+    message = MIMEMultipart()
+    message['From'] = GMAIL_USERNAME
+    message['To'] = receiverAddress
+    message['Subject'] = emailSubject
+    message.attach(MIMEText(emailBody, 'plain'))
+
+    #Connexion  au serveur Gmail
+    session = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    session.ehlo()
+    session.starttls()
+    session.ehlo()
+ 
+    #Authentification
+    session.login(GMAIL_USERNAME, GMAIL_PASSWORD)
+
+    #Envoi de l'email
+    session.sendmail(GMAIL_USERNAME, receiverAddress, message.as_string())
+    session.quit
+    
+    #Le mail vient d'être envoyé, on remet la variable de controle à False
+    sendEmail = False
