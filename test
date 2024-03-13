@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import time
 
 # URL de la page à surveiller
-url = "URL_DE_LA_PAGE_A_SURVEILLER"
+url = "https://firststepprojectco.wixsite.com/first-step"
 
 # Fonction pour récupérer le contenu HTML de la page
 def get_page_content(url):
@@ -33,4 +33,4 @@ def monitor_page(url):
         time.sleep(60)  # Attendre 60 secondes avant de vérifier à nouveau la page
 
 # Lancement de la surveillance de la page
-monitor_page(https://firststepprojectco.wixsite.com/first-step)
+monitor_page(url)
