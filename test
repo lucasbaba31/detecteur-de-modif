@@ -1,1 +1,36 @@
+import requests
+from bs4 import BeautifulSoup
+import time
 
+# URL de la page à surveiller
+url = "URL_DE_LA_PAGE_A_SURVEILLER"
+
+# Fonction pour récupérer le contenu HTML de la page
+def get_page_content(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.content
+    else:
+        print("Erreur lors de la récupération de la page")
+        return None
+
+# Fonction pour comparer deux versions du contenu HTML
+def compare_content(old_content, new_content):
+    if old_content == new_content:
+        return True
+    else:
+        return False
+
+# Fonction pour surveiller les modifications sur la page
+def monitor_page(url):
+    old_content = get_page_content(url)
+    while True:
+        new_content = get_page_content(url)
+        if new_content:
+            if not compare_content(old_content, new_content):
+                print("La page a été modifiée !")
+                old_content = new_content
+        time.sleep(60)  # Attendre 60 secondes avant de vérifier à nouveau la page
+
+# Lancement de la surveillance de la page
+monitor_page(https://firststepprojectco.wixsite.com/first-step)
