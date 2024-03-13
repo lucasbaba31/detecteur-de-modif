@@ -4,11 +4,11 @@ import smtplib #lib pour la partie email
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-SMTP_SERVER =  "lucaspages1106@gmail.com" #Serveur email
+SMTP_SERVER =  "smtp.gmail.com" #Serveur email
 SMTP_PORT = 587 #Port du serveur
-GMAIL_USERNAME  = #Votre adresse  email
-GMAIL_PASSWORD = #Votre  mot de passe
-receiverAddress = #Adresse mail destinataire
+GMAIL_USERNAME  = lucaspages1106@gmail.com
+GMAIL_PASSWORD = Florence30
+receiverAddress = lucaspages1106@gmail.com
 
 emailSubject = "Rapport \U0001F3AE" #Objet du email 
 emailBase = "disponible" #Début du corps du email
